@@ -20,9 +20,6 @@ topology:
       startup-config: configs25/leaf1-startup-complete.cfg
       mgmt-ipv4: 172.20.20.2
       mgmt-ipv6: 2001:172:20:20::2
-      binds:
-        - show-bgp.py:/etc/opt/srlinux/cli/plugins/show-bgp.py
-        - bgp-report.py:/etc/opt/srlinux/cli/bgp/ip_bgp_report.py
     leaf2:
       startup-config: configs25/leaf2-startup-complete.cfg
       mgmt-ipv4: 172.20.20.4
