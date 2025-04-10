@@ -23,9 +23,6 @@ topology:
       binds:
         - show-bgp.py:/etc/opt/srlinux/cli/plugins/show-bgp.py
         - bgp-report.py:/etc/opt/srlinux/cli/bgp/ip_bgp_report.py
-    leaf1-1:
-      mgmt-ipv4: 172.20.20.5
-      mgmt-ipv6: 2001:172:20:20::5
     leaf2:
       startup-config: configs25/leaf2-startup-complete.cfg
       mgmt-ipv4: 172.20.20.4
@@ -82,7 +79,6 @@ topology:
       # spine-leaf links
     - endpoints: ["leaf1:e1-1", "spine:e1-1"]
     - endpoints: ["leaf2:e1-2", "spine:e1-2"]
-    - endpoints: ["leaf1-1:e1-3", "leaf1:e1-3"]
     
       # leaf-client links
     - endpoints: ["client1:eth1","leaf1:e1-10"]
