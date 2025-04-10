@@ -10,4 +10,4 @@
 
 ---
 
-![image](lab-topology.jpg)
+![image](lab-ipv4-2.jpg)
