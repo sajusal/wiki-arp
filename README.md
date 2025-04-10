@@ -9,3 +9,5 @@
 </div>
 
 ---
+
+![image](lab-topology.jpg)
