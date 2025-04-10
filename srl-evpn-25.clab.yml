@@ -1,0 +1,92 @@
+name: srl-evpn-25
+
+mgmt:
+  network: srl-evpn-lab-mgmt
+  ipv4-subnet: 172.20.20.0/24
+  ipv6-subnet: 2001:172:20:20::/64
+
+prefix: ""
+topology:
+  defaults:
+    kind: nokia_srlinux
+  kinds:
+    nokia_srlinux:
+      type: ixrd2l
+      image: ghcr.io/nokia/srlinux:25.3.1
+    linux:
+      image: ghcr.io/srl-labs/alpine
+  nodes:
+    leaf1:
+      startup-config: configs25/leaf1-startup-complete.cfg
+      mgmt-ipv4: 172.20.20.2
+      mgmt-ipv6: 2001:172:20:20::2
+      binds:
+        - show-bgp.py:/etc/opt/srlinux/cli/plugins/show-bgp.py
+        - bgp-report.py:/etc/opt/srlinux/cli/bgp/ip_bgp_report.py
+    leaf1-1:
+      mgmt-ipv4: 172.20.20.5
+      mgmt-ipv6: 2001:172:20:20::5
+    leaf2:
+      startup-config: configs25/leaf2-startup-complete.cfg
+      mgmt-ipv4: 172.20.20.4
+      mgmt-ipv6: 2001:172:20:20::4
+    spine:
+      startup-config: configs25/spine-startup-complete.cfg
+      mgmt-ipv4: 172.20.20.3
+      mgmt-ipv6: 2001:172:20:20::3
+    client1:
+      kind: linux
+      mgmt-ipv4: 172.20.20.10
+      mgmt-ipv6: 2001:172:20:20::10
+      exec:
+        - ip address add 172.16.10.50/24 dev eth1
+        - ip -6 address add 172:16:10::50/64 dev eth1
+        - ip route add 10.90.1.0/24 via 172.16.10.254
+        - ip route add 10.80.1.0/24 via 172.16.10.254
+        - ip -6 route add 10:90:1::/64 via 172:16:10::254
+        - ip -6 route add 10:80:1::/64 via 172:16:10::254
+    client2:
+      kind: linux
+      mgmt-ipv4: 172.20.20.11
+      mgmt-ipv6: 2001:172:20:20::11
+      binds:
+        - ./configs/hosts/client2/interfaces:/etc/network/interfaces
+        - ./configs/hosts/client2/staticroute:/etc/conf.d/staticroute
+      exec:
+        - /root/restart-services.sh
+        - ip route add 172.16.10.0/24 via 10.80.1.2
+        - ip -6 route add 10:90:1::/64 via 10:80:1::2
+    client3:
+      kind: linux
+      mgmt-ipv4: 172.20.20.12
+      mgmt-ipv6: 2001:172:20:20::12
+      binds:
+        - ./configs/hosts/client3/interfaces:/etc/network/interfaces
+        - ./configs/hosts/client3/staticroute:/etc/conf.d/staticroute        
+      exec:
+        - /root/restart-services.sh
+        - ip -6 route add 10:90:1::/64 via 172:16:10::253
+        - ip -6 route add 10:80:1::/64 via 172:16:10::253
+    client4:
+      kind: linux
+      mgmt-ipv4: 172.20.20.13
+      mgmt-ipv6: 2001:172:20:20::13
+      binds:
+        - ./configs/hosts/client4/interfaces:/etc/network/interfaces
+        - ./configs/hosts/client4/staticroute:/etc/conf.d/staticroute
+      exec:
+        - /root/restart-services.sh
+        - ip route add 172.16.10.0/24 via 10.90.1.2
+        - ip -6 route add 10:80:1::/64 via 10:90:1::2
+  links:
+      # spine-leaf links
+    - endpoints: ["leaf1:e1-1", "spine:e1-1"]
+    - endpoints: ["leaf2:e1-2", "spine:e1-2"]
+    - endpoints: ["leaf1-1:e1-3", "leaf1:e1-3"]
+    
+      # leaf-client links
+    - endpoints: ["client1:eth1","leaf1:e1-10"]
+    - endpoints: ["client2:eth1","leaf1:e1-11"]
+    - endpoints: ["client3:eth1","leaf2:e1-10"]
+    - endpoints: ["client4:eth1","leaf2:e1-11"]
+    - endpoints: ["client2:eth2","leaf1:e1-12"]
